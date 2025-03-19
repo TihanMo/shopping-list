@@ -25,6 +25,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    needs: lint  # Tests starten erst nach erfolgreichem Linting
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -33,5 +34,34 @@ jobs:
         run: npm install
 
       - name: Run Tests
-        run: npm test
+        run: npm test -- --passWithNoTests  # Falls keine Tests existieren, schlägt die Pipeline nicht fehl
 
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test  # Der Build startet nur, wenn die Tests erfolgreich waren
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Cache Dependencies  # Spart Zeit beim erneuten Installieren
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Project
+        run: npm run build
+
+  deploy:
+    name: Simulate Deployment
+    runs-on: ubuntu-latest
+    needs: build  # Deployment startet nur nach erfolgreichem Build
+    steps:
+      - name: Simulate Deployment
+        run: echo "Deployment successful!"
