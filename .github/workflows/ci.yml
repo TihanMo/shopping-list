@@ -1,0 +1,17 @@
+name: CI Pipeline
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Echo Test
+          run: echo "CI/CD Pipeline läuft korrekt!"
+
